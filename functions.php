@@ -212,7 +212,8 @@ function wb_parse_orders(array $resp): array {
     if (is_array($orders)) {
         foreach ($orders as $o) {
             $id = (string)($o['id'] ?? $o['orderId'] ?? '');
-            $sum = (float)($o['totalPrice'] ?? $o['convertedPrice'] ?? 0);
+            $rawSum = (float)($o['totalPrice'] ?? $o['convertedPrice'] ?? 0);
+            $sum = $rawSum > 0 ? $rawSum / 100 : 0;
             $name = (string)($o['article'] ?? $o['supplierArticle'] ?? 'Товар');
             $qty  = (int)($o['quantity'] ?? 1);
             $parts = [ htmlspecialchars("{$name}: {$qty} шт") ];
