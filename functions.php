@@ -24,7 +24,7 @@ function tg_send(string $token, string $chatId, string $text): array {
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 30,
+        CURLOPT_TIMEOUT => 12,
         CURLOPT_POST => true,
         CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
         CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
@@ -258,12 +258,17 @@ function ym_parse_orders(array $resp): array {
         foreach ($orders as $o) {
             $id = (string)($o['id'] ?? '');
             $items = $o['items'] ?? [];
-            $sum = 0.0;
+            // Сумма заказа для продавца = buyerTotal + subsidies
+            // buyerTotal — то, что платит покупатель
+            // subsidies — субсидии от Яндекс Маркета (скидки, которые компенсирует ЯМ)
+            $sum = (float)($o['buyerTotal'] ?? 0);
+            $subsidies = $o['subsidies'] ?? [];
+            foreach ($subsidies as $sub) {
+                $sum += (float)($sub['amount'] ?? 0);
+            }
             $parts = [];
             foreach ($items as $it) {
                 $qty = (int)($it['count'] ?? 1);
-                $price = (float)($it['price'] ?? 0);
-                $sum += $price * $qty;
                 $name = (string)($it['offerName'] ?? 'Товар');
                 $parts[] = htmlspecialchars("{$name}: {$qty} шт");
             }
