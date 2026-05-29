@@ -258,12 +258,11 @@ function ym_parse_orders(array $resp): array {
         foreach ($orders as $o) {
             $id = (string)($o['id'] ?? '');
             $items = $o['items'] ?? [];
-            $sum = 0.0;
+            // Получаем сумму заказа из prices.payment.value (по API Яндекс Маркета)
+            $sum = (float)(($o['prices']['payment']['value'] ?? 0));
             $parts = [];
             foreach ($items as $it) {
                 $qty = (int)($it['count'] ?? 1);
-                $price = (float)($it['price'] ?? 0);
-                $sum += $price * $qty;
                 $name = (string)($it['offerName'] ?? 'Товар');
                 $parts[] = htmlspecialchars("{$name}: {$qty} шт");
             }
