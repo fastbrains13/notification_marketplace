@@ -1,4 +1,4 @@
-# notification-marketplace
+# Уведомления о новых заказах на Wildberries, OZON, Яндекс.Маркет
 
 Бот для уведомлений о новых заказах с маркетплейсов (Ozon, Wildberries, Яндекс.Маркет) в Telegram.
 
@@ -22,7 +22,7 @@ php check_orders.php
 ## Cron
 Ежеминутный запуск:
 ```cron
-* * * * * /usr/bin/php /path/to/notification-marketplace/check_orders.php >/dev/null 2>&1
+* * * * * /usr/bin/php /path/to/notification-marketplace/check_orders.php
 ```
 
 ## Формат Telegram-сообщения
@@ -35,19 +35,7 @@ php check_orders.php
 💰 Сумма заказа: <сумма> ₽
 ```
 
-## GitHub (приватный репозиторий)
-Создайте пустой приватный репозиторий `notification-marketplace`, затем:
-```bash
-cd notification-marketplace
-git init
-git branch -m main
-git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/<ваш_ник>/notification-marketplace.git
-git push -u origin main
-```
-
-## Замечания
+## Примечание
 - Первый запуск берёт окно последних 10 минут (чтобы не слать историю). Порог настраивается в `functions.php` через `DEFAULT_LOOKBACK_SECONDS`.
 - Для Wildberries необходимо рабочее DNS-разрешение `suppliers-api.wildberries.ru` на сервере.
 - Логи смотрите в `storage/debug.log`.

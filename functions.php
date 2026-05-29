@@ -24,7 +24,7 @@ function tg_send(string $token, string $chatId, string $text): array {
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 12,
+        CURLOPT_TIMEOUT => 30,
         CURLOPT_POST => true,
         CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
         CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
@@ -197,7 +197,7 @@ function ozon_parse_orders(array $resp): array {
 
 // ---- Wildberries ----
 function wb_list_new(array $wb): ?array {
-    $url = 'https://suppliers-api.wildberries.ru/api/v3/orders/new?limit=100';
+    $url = 'https://marketplace-api.wildberries.ru/api/v3/orders/new?limit=100';
     $headers = [
         'Authorization: '.$wb['token'],
         'Content-Type: application/json'
@@ -212,7 +212,8 @@ function wb_parse_orders(array $resp): array {
     if (is_array($orders)) {
         foreach ($orders as $o) {
             $id = (string)($o['id'] ?? $o['orderId'] ?? '');
-            $sum = (float)($o['totalPrice'] ?? $o['convertedPrice'] ?? 0);
+            $rawSum = (float)($o['totalPrice'] ?? $o['convertedPrice'] ?? 0);
+            $sum = $rawSum > 0 ? $rawSum / 100 : 0;
             $name = (string)($o['article'] ?? $o['supplierArticle'] ?? 'Товар');
             $qty  = (int)($o['quantity'] ?? 1);
             $parts = [ htmlspecialchars("{$name}: {$qty} шт") ];
@@ -228,7 +229,7 @@ function wb_parse_orders(array $resp): array {
 function wb_acknowledge_disabled(array $wb, array $orderIds): ?array {
     if (empty($wb['ack'])) return null; // toggle by config flag
     if (!$orderIds) return null;
-    $url = 'https://suppliers-api.wildberries.ru/api/v3/orders/acknowledge';
+    $url = 'https://marketplace-api.wildberries.ru/api/v3/orders/acknowledge';
     $headers = [
         'Authorization: '.$wb['token'],
         'Content-Type: application/json'
