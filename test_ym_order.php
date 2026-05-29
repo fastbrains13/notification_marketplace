@@ -132,16 +132,26 @@ foreach ($items as $it) {
 }
 echo "   Результат: {$oldSum} руб.\n\n";
 
-// Способ 2: Новый (buyerTotal из заказа)
-echo "2. Новый способ (buyerTotal из заказа):\n";
+// Способ 2: buyerTotal (только то, что платит покупатель)
+echo "2. buyerTotal (что платит покупатель):\n";
 $buyerTotal = (float)($targetOrder['buyerTotal'] ?? 0);
-echo "   buyerTotal: {$buyerTotal} руб.\n";
-echo "   Это то, что вернёт исправленная функция ym_parse_orders()\n\n";
+echo "   buyerTotal: {$buyerTotal} руб.\n\n";
 
-// Способ 3: Альтернатива (itemsTotal)
-echo "3. Альтернатива (itemsTotal):\n";
-$itemsTotal = (float)($targetOrder['itemsTotal'] ?? 0);
-echo "   itemsTotal: {$itemsTotal} руб.\n\n";
+// Способ 3: subsidies (субсидии от Яндекс Маркета)
+echo "3. Субсидии от Яндекс Маркета:\n";
+$subsidiesTotal = 0;
+$subsidies = $targetOrder['subsidies'] ?? [];
+foreach ($subsidies as $sub) {
+    $subsidiesTotal += (float)($sub['amount'] ?? 0);
+    echo "   - {$sub['type']}: {$sub['amount']} руб.\n";
+}
+echo "   Итого субсидий: {$subsidiesTotal} руб.\n\n";
+
+// Способ 4: ПРАВИЛЬНЫЙ (buyerTotal + subsidies)
+echo "4. ПРАВИЛЬНЫЙ СПОСОБ (buyerTotal + subsidies):\n";
+$correctSum = $buyerTotal + $subsidiesTotal;
+echo "   {$buyerTotal} + {$subsidiesTotal} = {$correctSum} руб.\n";
+echo "   Это должно совпадать с ценой в интерфейсе ЯМ!\n\n";
 
 // 7. Тестируем функцию ym_parse_orders
 echo "\n=== ТЕСТ ФУНКЦИИ ym_parse_orders ===\n";

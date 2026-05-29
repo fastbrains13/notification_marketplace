@@ -258,8 +258,14 @@ function ym_parse_orders(array $resp): array {
         foreach ($orders as $o) {
             $id = (string)($o['id'] ?? '');
             $items = $o['items'] ?? [];
-            // Используем buyerTotal из заказа — это окончательная сумма, которую платит покупатель
+            // Сумма заказа для продавца = buyerTotal + subsidies
+            // buyerTotal — то, что платит покупатель
+            // subsidies — субсидии от Яндекс Маркета (скидки, которые компенсирует ЯМ)
             $sum = (float)($o['buyerTotal'] ?? 0);
+            $subsidies = $o['subsidies'] ?? [];
+            foreach ($subsidies as $sub) {
+                $sum += (float)($sub['amount'] ?? 0);
+            }
             $parts = [];
             foreach ($items as $it) {
                 $qty = (int)($it['count'] ?? 1);
