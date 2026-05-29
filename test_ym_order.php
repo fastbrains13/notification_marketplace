@@ -112,42 +112,36 @@ echo "\n=== АНАЛИЗ СТРУКТУРЫ ===\n";
 $items = $targetOrder['items'] ?? [];
 echo "Количество товаров: " . count($items) . "\n\n";
 
-$totalSum = 0;
 foreach ($items as $i => $it) {
     echo "--- Товар #" . ($i + 1) . " ---\n";
     echo "  offerName: " . ($it['offerName'] ?? 'N/A') . "\n";
     echo "  count: " . ($it['count'] ?? 'N/A') . "\n";
-    
-    // Старый способ (price)
-    $oldPrice = $it['price'] ?? 'N/A';
-    echo "  price (старое поле): " . $oldPrice . "\n";
-    
-    // Новый способ (prices.payment.value)
-    $paymentValue = $it['prices']['payment']['value'] ?? 'N/A';
-    echo "  prices.payment.value: " . $paymentValue . "\n";
-    
-    // Другие поля prices
-    if (isset($it['prices'])) {
-        echo "  Вся структура prices:\n";
-        echo "    " . json_encode($it['prices'], JSON_UNESCAPED_UNICODE) . "\n";
-    }
-    
-    if (is_numeric($paymentValue)) {
-        $totalSum += (float)$paymentValue;
-    }
+    echo "  price: " . ($it['price'] ?? 'N/A') . "\n";
+    echo "  buyerPrice: " . ($it['buyerPrice'] ?? 'N/A') . "\n";
     echo "\n";
 }
 
-// 6. Итог
-echo "=== ИТОГО ===\n";
-echo "Сумма по старому методу (price * count): ";
+// 6. Сравнение способов получения суммы
+echo "=== СПОСОБЫ ПОЛУЧЕНИЯ СУММЫ ===\n";
+
+// Способ 1: Старый (price * count)
+echo "1. Старый способ (price * count):\n";
 $oldSum = 0;
 foreach ($items as $it) {
     $oldSum += (float)($it['price'] ?? 0) * (int)($it['count'] ?? 1);
 }
-echo "{$oldSum} руб.\n";
+echo "   Результат: {$oldSum} руб.\n\n";
 
-echo "Сумма по новому методу (prices.payment.value): {$totalSum} руб.\n";
+// Способ 2: Новый (buyerTotal из заказа)
+echo "2. Новый способ (buyerTotal из заказа):\n";
+$buyerTotal = (float)($targetOrder['buyerTotal'] ?? 0);
+echo "   buyerTotal: {$buyerTotal} руб.\n";
+echo "   Это то, что вернёт исправленная функция ym_parse_orders()\n\n";
+
+// Способ 3: Альтернатива (itemsTotal)
+echo "3. Альтернатива (itemsTotal):\n";
+$itemsTotal = (float)($targetOrder['itemsTotal'] ?? 0);
+echo "   itemsTotal: {$itemsTotal} руб.\n\n";
 
 // 7. Тестируем функцию ym_parse_orders
 echo "\n=== ТЕСТ ФУНКЦИИ ym_parse_orders ===\n";

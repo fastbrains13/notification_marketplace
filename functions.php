@@ -258,14 +258,12 @@ function ym_parse_orders(array $resp): array {
         foreach ($orders as $o) {
             $id = (string)($o['id'] ?? '');
             $items = $o['items'] ?? [];
-            // Суммируем prices.payment.value по каждому товару.
-            // По API: prices.payment.value — общая стоимость всех единиц данного товара (count уже учтён).
-            $sum = 0.0;
+            // Используем buyerTotal из заказа — это окончательная сумма, которую платит покупатель
+            $sum = (float)($o['buyerTotal'] ?? 0);
             $parts = [];
             foreach ($items as $it) {
                 $qty = (int)($it['count'] ?? 1);
                 $name = (string)($it['offerName'] ?? 'Товар');
-                $sum += (float)(($it['prices']['payment']['value'] ?? 0));
                 $parts[] = htmlspecialchars("{$name}: {$qty} шт");
             }
             $out[] = ['id'=>$id, 'sum'=>$sum, 'items_bullets'=>items_to_bullets($parts)];
